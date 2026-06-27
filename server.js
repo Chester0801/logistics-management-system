@@ -10,7 +10,7 @@ const XLSX = require('xlsx');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'ctms_secret_key_2024_construction';
-const DB_PATH = path.join(__dirname, 'database', 'ctms.db');
+const DB_PATH = path.join(__dirname, 'ctms.db');
 
 let db;
 
