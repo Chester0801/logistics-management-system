@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truck Entries - CTMS</title>
+  <meta name="description" content="Manage truck entries - Add, edit, delete and view all construction site truck records">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+  
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🚛</div>
+        <h1>CTMS</h1>
+        <span>Construction Transport Mgmt</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Main Menu</div>
+        <a href="/dashboard.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="/entries.html" class="nav-link"><span class="nav-icon">🚛</span> Truck Entries</a>
+        <a href="/reports.html" class="nav-link"><span class="nav-icon">📄</span> Reports</a>
+        <div class="nav-section-title" style="margin-top:16px;">Management</div>
+        <a href="/users.html" class="nav-link" id="usersNavLink"><span class="nav-icon">👥</span> Users</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info" data-action="logout" title="Click to logout">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role" id="userRole">Role</div>
+          </div>
+          <span style="margin-left:auto;font-size:14px;opacity:0.5;">↩</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- HEADER -->
+      <header class="header">
+        <div class="header-left">
+          <button class="menu-toggle icon-btn" id="menuToggle">☰</button>
+          <div>
+            <div class="header-title">Truck Entries</div>
+            <div class="header-subtitle">Manage all truck entry records</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="header-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="globalSearch" placeholder="Search trucks, drivers..." autocomplete="off">
+          </div>
+          <button class="icon-btn" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Truck Entry Management</h2>
+            <p>Track all incoming material deliveries</p>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-primary" id="addEntryBtn">➕ Add Entry</button>
+          </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <h3 style="font-size:14px;font-weight:600;color:var(--text-primary);">🔍 Search & Filter</h3>
+            <button class="btn btn-secondary btn-sm" id="clearFiltersBtn">Clear All</button>
+          </div>
+          <div class="filter-row" id="filterRow">
+            <div class="form-group" style="flex:2;min-width:200px;">
+              <label class="form-label">Global Search</label>
+              <input type="text" class="form-control" id="filterSearch" placeholder="Search by name, truck, material...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transport Name</label>
+              <input type="text" class="form-control" id="filterTransport" placeholder="Transport name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Driver Name</label>
+              <input type="text" class="form-control" id="filterDriver" placeholder="Driver name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Truck Number</label>
+              <input type="text" class="form-control" id="filterTruck" placeholder="Truck no.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Material Type</label>
+              <select class="form-control" id="filterMaterial">
+                <option value="">All Materials</option>
+                <option>Sand</option>
+                <option>Gravel</option>
+                <option>Cement</option>
+                <option>Steel</option>
+                <option>Bricks</option>
+                <option>Aggregate</option>
+                <option>Concrete Mix</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date From</label>
+              <input type="date" class="form-control" id="filterDateFrom">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date To</label>
+              <input type="date" class="form-control" id="filterDateTo">
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary" id="applyFilterBtn">🔍 Filter</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ENTRIES TABLE -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🚛 Truck Entries</span>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select class="form-control" id="pageLimitSelect" style="width:auto;padding:5px 10px;font-size:12px;">
+                <option value="20">20 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+              <span class="badge badge-primary" id="totalBadge">0 entries</span>
+            </div>
+          </div>
+          
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Transport Name</th>
+                  <th>Driver Name</th>
+                  <th>Truck Number</th>
+                  <th>Material</th>
+                  <th>Weight (T)</th>
+                  <th>Time In</th>
+                  <th>Time Out</th>
+                  <th>Remarks</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="entriesTableBody">
+                <tr class="loading-row">
+                  <td colspan="11">
+                    <div style="display:flex;align-items:center;gap:10px;justify-content:center;">
+                      <div class="spinner"></div> Loading entries...
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- PAGINATION -->
+          <div class="pagination" id="pagination">
+            <div class="pagination-info" id="paginationInfo"></div>
+            <div class="pagination-controls" id="paginationControls"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADD/EDIT ENTRY MODAL -->
+  <div class="modal-overlay" id="entryModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">🚛 Add Truck Entry</span>
+        <button class="modal-close" onclick="closeEntryModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="entryForm" novalidate>
+          <input type="hidden" id="entryId">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Transport Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="fieldTransport" placeholder="e.g. Sharma Transport" list="transportList" required>
+              <datalist id="transportList"></datalist>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Driver Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="fieldDriver" placeholder="e.g. Raju Kumar" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Truck Number <span class="required">*</span></label>
+              <input type="text" class="form-control" id="fieldTruckNo" placeholder="e.g. MH-12-AB-1234" style="text-transform:uppercase;" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Material Type <span class="required">*</span></label>
+              <select class="form-control" id="fieldMaterial" required>
+                <option value="">Select Material</option>
+                <option>Sand</option>
+                <option>Gravel</option>
+                <option>Cement</option>
+                <option>Steel</option>
+                <option>Bricks</option>
+                <option>Aggregate</option>
+                <option>Concrete Mix</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Weight (Tons) <span class="required">*</span></label>
+              <input type="number" class="form-control" id="fieldWeight" placeholder="e.g. 12.5" step="0.01" min="0.1" max="50" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date <span class="required">*</span></label>
+              <input type="date" class="form-control" id="fieldDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Time In <span class="required">*</span></label>
+              <input type="time" class="form-control" id="fieldTimeIn" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Time Out <span style="color:var(--text-muted);font-weight:400;">(Optional)</span></label>
+              <input type="time" class="form-control" id="fieldTimeOut">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Remarks</label>
+              <textarea class="form-control" id="fieldRemarks" placeholder="Any additional notes..." rows="2"></textarea>
+            </div>
+          </div>
+          <div id="formError" style="display:none;padding:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:var(--danger);font-size:13px;margin-top:12px;"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeEntryModal()">Cancel</button>
+        <button class="btn btn-primary" id="saveEntryBtn">💾 Save Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW ENTRY MODAL -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">👁️ Entry Details</span>
+        <button class="modal-close" onclick="document.getElementById('viewModal').classList.remove('open')">✕</button>
+      </div>
+      <div class="modal-body" id="viewModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('viewModal').classList.remove('open')">Close</button>
+        <button class="btn btn-primary" id="viewEditBtn">✏️ Edit Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/utils.js"></script>
+  <script src="/js/entries.js"></script>
+</body>
+</html>

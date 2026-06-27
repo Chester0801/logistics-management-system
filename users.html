@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users - CTMS</title>
+  <meta name="description" content="Manage user accounts for the Construction Transport Management System">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🚛</div>
+        <h1>CTMS</h1>
+        <span>Construction Transport Mgmt</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Main Menu</div>
+        <a href="/dashboard.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="/entries.html" class="nav-link"><span class="nav-icon">🚛</span> Truck Entries</a>
+        <a href="/reports.html" class="nav-link"><span class="nav-icon">📄</span> Reports</a>
+        <div class="nav-section-title" style="margin-top:16px;">Management</div>
+        <a href="/users.html" class="nav-link" id="usersNavLink"><span class="nav-icon">👥</span> Users</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info" data-action="logout" title="Click to logout">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role" id="userRole">Role</div>
+          </div>
+          <span style="margin-left:auto;font-size:14px;opacity:0.5;">↩</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <button class="menu-toggle icon-btn" id="menuToggle">☰</button>
+          <div>
+            <div class="header-title">User Management</div>
+            <div class="header-subtitle">Manage admin and supervisor accounts</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="icon-btn" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Access Denied (for non-admins) -->
+        <div id="accessDenied" class="hidden">
+          <div class="card" style="margin-top:60px;">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="empty-icon">🔒</div>
+                <p style="font-size:18px;font-weight:600;margin-bottom:8px;">Access Restricted</p>
+                <p>Only administrators can manage users.</p>
+                <a href="/dashboard.html" class="btn btn-primary" style="margin-top:16px;">← Back to Dashboard</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="usersContent">
+          <div class="page-header">
+            <div class="page-header-left">
+              <h2>User Accounts</h2>
+              <p>Manage system users and their roles</p>
+            </div>
+            <div class="page-header-right">
+              <button class="btn btn-primary" id="addUserBtn">➕ Add User</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">👥 All Users</span>
+              <span class="badge badge-primary" id="userCountBadge">0 users</span>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <tr class="loading-row">
+                    <td colspan="6"><div style="display:flex;align-items:center;gap:10px;justify-content:center;"><div class="spinner"></div> Loading...</div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <span class="modal-title">👤 Add New User</span>
+        <button class="modal-close" onclick="closeUserModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="userForm" novalidate>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" class="form-control" id="userFieldName" placeholder="e.g. John Doe" required>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Email Address <span class="required">*</span></label>
+            <input type="email" class="form-control" id="userFieldEmail" placeholder="e.g. john@company.com" required>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Password <span class="required">*</span></label>
+            <input type="password" class="form-control" id="userFieldPassword" placeholder="Min 6 characters" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Role <span class="required">*</span></label>
+            <select class="form-control" id="userFieldRole" required>
+              <option value="supervisor">Supervisor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div id="userFormError" style="display:none;margin-top:12px;padding:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:var(--danger);font-size:13px;"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+        <button class="btn btn-primary" id="saveUserBtn">💾 Create User</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth()) return;
+      
+      const user = getUser();
+      
+      // Check admin role
+      if (!user || user.role !== 'admin') {
+        document.getElementById('accessDenied').classList.remove('hidden');
+        document.getElementById('usersContent').classList.add('hidden');
+        return;
+      }
+      
+      await loadUsers();
+      
+      document.getElementById('addUserBtn').addEventListener('click', () => {
+        document.getElementById('userModal').classList.add('open');
+        document.getElementById('userForm').reset();
+        document.getElementById('userFormError').style.display = 'none';
+        setTimeout(() => document.getElementById('userFieldName').focus(), 100);
+      });
+      
+      document.getElementById('saveUserBtn').addEventListener('click', saveUser);
+      document.getElementById('userModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('userModal')) closeUserModal();
+      });
+    });
+    
+    function closeUserModal() {
+      document.getElementById('userModal').classList.remove('open');
+    }
+    
+    async function loadUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      try {
+        const users = await apiRequest('/users');
+        document.getElementById('userCountBadge').textContent = `${users.length} users`;
+        const currentUser = getUser();
+        
+        tbody.innerHTML = users.map(u => `
+          <tr class="fade-in">
+            <td style="color:var(--text-muted);font-size:11px;">#${u.id}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${u.role === 'admin' ? '#ef4444,#dc2626' : '#3b82f6,#1d4ed8'});display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:white;flex-shrink:0;">${u.name.charAt(0).toUpperCase()}</div>
+                <div>
+                  <div style="font-weight:600;font-size:13px;">${u.name}</div>
+                  ${u.id === currentUser.id ? '<div style="font-size:11px;color:var(--primary);">● You</div>' : ''}
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-secondary);">${u.email}</td>
+            <td><span class="badge badge-${u.role}">${u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span></td>
+            <td style="color:var(--text-muted);font-size:12px;">${formatDateTime(u.createdAt)}</td>
+            <td>
+              ${u.id !== currentUser.id ? `
+                <button class="btn-icon delete" title="Delete User" onclick="deleteUser(${u.id}, '${u.name}')">🗑️</button>
+              ` : '<span style="color:var(--text-muted);font-size:12px;">Current User</span>'}
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);">Failed to load users</td></tr>`;
+      }
+    }
+    
+    async function saveUser() {
+      const btn = document.getElementById('saveUserBtn');
+      const errorDiv = document.getElementById('userFormError');
+      errorDiv.style.display = 'none';
+      
+      const name = document.getElementById('userFieldName').value.trim();
+      const email = document.getElementById('userFieldEmail').value.trim();
+      const password = document.getElementById('userFieldPassword').value;
+      const role = document.getElementById('userFieldRole').value;
+      
+      if (!name || !email || !password || !role) {
+        errorDiv.textContent = '⚠️ All fields are required.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (password.length < 6) {
+        errorDiv.textContent = '⚠️ Password must be at least 6 characters.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Creating...';
+      
+      try {
+        await apiRequest('/users', { method: 'POST', body: { name, email, password, role } });
+        showToast('success', 'User Created', `${name} has been added as ${role}`);
+        closeUserModal();
+        await loadUsers();
+      } catch (err) {
+        errorDiv.textContent = '⚠️ ' + err.message;
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Create User';
+      }
+    }
+    
+    function deleteUser(id, name) {
+      showConfirm('Delete User', `Are you sure you want to delete user "${name}"? This cannot be undone.`, async () => {
+        try {
+          await apiRequest(`/users/${id}`, { method: 'DELETE' });
+          showToast('success', 'User Deleted', `${name} has been removed`);
+          await loadUsers();
+        } catch (err) {
+          showToast('error', 'Delete Failed', err.message);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
