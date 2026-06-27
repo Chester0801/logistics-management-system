@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - CTMS</title>
+  <meta name="description" content="Generate daily, weekly and monthly reports for construction site truck deliveries">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .report-material-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .report-material-table th { padding: 8px 12px; text-align: left; background: var(--bg-tertiary); color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .report-material-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-light); }
+    .report-material-table tr:last-child td { border-bottom: none; }
+    .report-material-table tbody tr:hover { background: var(--bg-tertiary); }
+  </style>
+</head>
+<body>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🚛</div>
+        <h1>CTMS</h1>
+        <span>Construction Transport Mgmt</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Main Menu</div>
+        <a href="/dashboard.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+        <a href="/entries.html" class="nav-link"><span class="nav-icon">🚛</span> Truck Entries</a>
+        <a href="/reports.html" class="nav-link"><span class="nav-icon">📄</span> Reports</a>
+        <div class="nav-section-title" style="margin-top:16px;">Management</div>
+        <a href="/users.html" class="nav-link" id="usersNavLink"><span class="nav-icon">👥</span> Users</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info" data-action="logout" title="Click to logout">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role" id="userRole">Role</div>
+          </div>
+          <span style="margin-left:auto;font-size:14px;opacity:0.5;">↩</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <button class="menu-toggle icon-btn" id="menuToggle">☰</button>
+          <div>
+            <div class="header-title">Reports</div>
+            <div class="header-subtitle">Generate detailed transport reports</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="icon-btn" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Transport Reports</h2>
+            <p>Analyse daily, weekly & monthly truck delivery data</p>
+          </div>
+          <div class="page-header-right">
+          </div>
+        </div>
+
+        <!-- REPORT TABS -->
+        <div class="report-tabs">
+          <button class="report-tab active" id="tabDaily" onclick="switchTab('daily')">📅 Daily Report</button>
+          <button class="report-tab" id="tabWeekly" onclick="switchTab('weekly')">📆 Weekly Report</button>
+          <button class="report-tab" id="tabMonthly" onclick="switchTab('monthly')">🗓️ Monthly Report</button>
+        </div>
+
+        <!-- DAILY REPORT -->
+        <div id="panelDaily">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-body">
+              <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Select Date</label>
+                  <input type="date" class="form-control" id="dailyDate" style="width:200px;">
+                </div>
+                <button class="btn btn-primary" onclick="loadDailyReport()">Generate Report</button>
+              </div>
+            </div>
+          </div>
+          <div id="dailyReportContent"></div>
+        </div>
+
+        <!-- WEEKLY REPORT -->
+        <div id="panelWeekly" class="hidden">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-body">
+              <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Week Starting (Sunday)</label>
+                  <input type="date" class="form-control" id="weeklyStart" style="width:200px;">
+                </div>
+                <button class="btn btn-primary" onclick="loadWeeklyReport()">Generate Report</button>
+              </div>
+            </div>
+          </div>
+          <div id="weeklyReportContent"></div>
+        </div>
+
+        <!-- MONTHLY REPORT -->
+        <div id="panelMonthly" class="hidden">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-body">
+              <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Year</label>
+                  <select class="form-control" id="monthlyYear" style="width:120px;"></select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Month</label>
+                  <select class="form-control" id="monthlyMonth" style="width:160px;">
+                    <option value="1">January</option><option value="2">February</option>
+                    <option value="3">March</option><option value="4">April</option>
+                    <option value="5">May</option><option value="6">June</option>
+                    <option value="7">July</option><option value="8">August</option>
+                    <option value="9">September</option><option value="10">October</option>
+                    <option value="11">November</option><option value="12">December</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" onclick="loadMonthlyReport()">Generate Report</button>
+              </div>
+            </div>
+          </div>
+          <div id="monthlyReportContent"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/utils.js"></script>
+  <script src="/js/reports.js"></script>
+</body>
+</html>
